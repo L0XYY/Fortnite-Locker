@@ -1,19 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import dynamic from "next/dynamic";
-import { Orbit, RotateCcw, Sun, Layers3, Sparkles, User, Maximize2, Loader2, Clapperboard, X } from "lucide-react";
+import { Sparkles, User, Maximize2, Clapperboard, X, Layers3 } from "lucide-react";
 import type { Cosmetic } from "@/lib/fortnite";
 import { cosmeticTone, alpha, cn, SLOTS } from "@/lib/utils";
 import { CosmeticImage } from "@/components/CosmeticImage";
-
-const Cosmetic3DViewer = dynamic(
-  () => import("./Cosmetic3DViewer").then((m) => m.Cosmetic3DViewer),
-  { ssr: false, loading: () => <StageLoader /> },
-);
+import { CosmeticShowcase } from "@/components/CosmeticShowcase";
 
 type Loadout = Record<string, Cosmetic | null | undefined>;
-type Bg = "lobby" | "studio" | "void" | "grid";
+type Bg = "lobby" | "studio" | "grid" | "void";
 
 const BACKGROUNDS: { key: Bg; label: string }[] = [
   { key: "lobby", label: "Lobby" },
@@ -33,24 +28,15 @@ export function LockerStage({
   const tone = outfit ? cosmeticTone(outfit) : { color: "#8b8bff", label: "", order: 0 };
 
   const [bg, setBg] = useState<Bg>("lobby");
-  const [spin, setSpin] = useState(true);
-  const [light, setLight] = useState(60);
   const [fullBody, setFullBody] = useState(true);
-  const [resetKey, setResetKey] = useState(0);
   const [showVideo, setShowVideo] = useState(false);
-
-  function reset() {
-    setLight(60);
-    setSpin(false);
-    setResetKey((k) => k + 1);
-  }
 
   const floatSlots = SLOTS.filter((s) => s.key !== "outfit" && s.key !== "contrail" && s.key !== "emote");
   const imageUrl = outfit ? (fullBody && outfit.featured ? outfit.featured : outfit.image) : "";
 
   return (
     <div className="glass-strong relative overflow-hidden rounded-4xl">
-      <StageBackground bg={bg} color={tone.color} light={light} spin={spin} />
+      <StageBackground bg={bg} color={tone.color} />
 
       {/* Floating equipped item chips */}
       <div className="pointer-events-none absolute inset-0 z-20 hidden sm:block">
@@ -62,7 +48,7 @@ export function LockerStage({
               key={s.key}
               onClick={() => onPickSlot?.(s.key)}
               className={cn(
-                "pointer-events-auto absolute flex w-36 items-center gap-2 rounded-2xl border border-white/10 bg-black/40 p-2 backdrop-blur-md transition hover:border-white/30 hover:bg-black/60",
+                "pointer-events-auto absolute flex w-36 items-center gap-2 rounded-2xl border border-white/10 bg-black/40 p-2 backdrop-blur-md transition duration-300 hover:-translate-y-0.5 hover:border-white/30 hover:bg-black/60",
                 pos,
               )}
             >
@@ -78,17 +64,10 @@ export function LockerStage({
         })}
       </div>
 
-      {/* 3D stage */}
+      {/* Showcase */}
       <div className="relative z-10 h-[460px] sm:h-[560px]">
         {outfit ? (
-          <Cosmetic3DViewer
-            key={imageUrl}
-            imageUrl={imageUrl}
-            color={tone.color}
-            spin={spin}
-            light={light}
-            resetSignal={resetKey}
-          />
+          <CosmeticShowcase key={imageUrl} imageUrl={imageUrl} color={tone.color} eager className="h-full w-full" />
         ) : (
           <div className="flex h-full items-center justify-center text-center">
             <div>
@@ -102,23 +81,14 @@ export function LockerStage({
         )}
       </div>
 
-      {/* Controls overlay */}
+      {/* Controls */}
       <div className="absolute inset-x-0 bottom-0 z-30 p-3">
-        <div className="glass mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-2 rounded-full px-3 py-2">
-          <StageBtn active={spin} onClick={() => setSpin((v) => !v)} icon={Orbit} label="Spin" />
+        <div className="glass mx-auto flex max-w-xl flex-wrap items-center justify-center gap-2 rounded-full px-3 py-2">
           <StageBtn active={fullBody} onClick={() => setFullBody((v) => !v)} icon={fullBody ? Maximize2 : User} label={fullBody ? "Full body" : "Portrait"} />
-          <StageBtn onClick={reset} icon={RotateCcw} label="Reset" />
           {outfit?.showcaseVideo && (
-            <StageBtn onClick={() => setShowVideo(true)} icon={Clapperboard} label="Showcase" />
+            <StageBtn onClick={() => setShowVideo(true)} icon={Clapperboard} label="3D Showcase" />
           )}
-
           <div className="mx-1 hidden h-6 w-px bg-white/10 sm:block" />
-
-          <div className="hidden items-center gap-2 sm:flex">
-            <Sun className="h-4 w-4 text-white/50" />
-            <input type="range" min={0} max={100} value={light} onChange={(e) => setLight(Number(e.target.value))} className="accent-white" aria-label="Lighting" />
-          </div>
-
           <div className="flex items-center gap-1 rounded-full bg-black/30 p-1">
             {BACKGROUNDS.map((b) => (
               <button
@@ -131,10 +101,12 @@ export function LockerStage({
             ))}
           </div>
         </div>
-        <p className="mt-2 hidden text-center text-[11px] text-white/30 sm:block">
-          <Layers3 className="mr-1 inline h-3 w-3" />
-          Drag to orbit · scroll to zoom · real-time WebGL 3D from Epic&apos;s official render
-        </p>
+        {outfit?.showcaseVideo && (
+          <p className="mt-2 hidden text-center text-[11px] text-white/30 sm:block">
+            <Layers3 className="mr-1 inline h-3 w-3" />
+            Tap 3D Showcase to see the real in-game model in motion
+          </p>
+        )}
       </div>
 
       {/* Official 3D showcase video */}
@@ -167,14 +139,6 @@ export function LockerStage({
   );
 }
 
-function StageLoader() {
-  return (
-    <div className="flex h-full items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-white/40" />
-    </div>
-  );
-}
-
 function StageBtn({
   icon: Icon,
   label,
@@ -201,7 +165,7 @@ function StageBtn({
   );
 }
 
-function StageBackground({ bg, color, light, spin }: { bg: Bg; color: string; light: number; spin: boolean }) {
+function StageBackground({ bg, color }: { bg: Bg; color: string }) {
   if (bg === "void") {
     return <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 40%, #141419, #050506 70%)" }} />;
   }
@@ -217,29 +181,21 @@ function StageBackground({ bg, color, light, spin }: { bg: Bg; color: string; li
             maskImage: "radial-gradient(circle at 50% 45%, black, transparent 75%)",
           }}
         />
-        <div className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl" style={{ background: alpha(color, 0.3) }} />
       </div>
     );
   }
   if (bg === "studio") {
     return (
       <div className="absolute inset-0" style={{ background: "linear-gradient(180deg,#101014,#050506)" }}>
-        <div className="absolute inset-x-0 bottom-0 h-1/3" style={{ background: `radial-gradient(60% 100% at 50% 100%, ${alpha(color, 0.35)}, transparent)` }} />
+        <div className="absolute inset-x-0 bottom-0 h-1/3" style={{ background: `radial-gradient(60% 100% at 50% 100%, ${alpha(color, 0.3)}, transparent)` }} />
       </div>
     );
   }
-  // lobby
+  // lobby — soft ambient glow, no rings/swirls
   return (
-    <div className="absolute inset-0 overflow-hidden" style={{ background: "#070709" }}>
-      <div
-        className={cn("absolute left-1/2 top-1/2 h-[140%] w-[140%] -translate-x-1/2 -translate-y-1/2", spin ? "animate-spin-slow" : "")}
-        style={{
-          background: `conic-gradient(from 0deg, ${alpha(color, 0.26)}, transparent 25%, ${alpha(color, 0.16)} 55%, transparent 80%, ${alpha(color, 0.26)})`,
-          opacity: 0.45 + light / 320,
-          willChange: "transform",
-        }}
-      />
-      <div className="absolute inset-0" style={{ background: `radial-gradient(60% 55% at 50% 42%, ${alpha(color, 0.34)}, transparent 70%)` }} />
+    <div className="absolute inset-0" style={{ background: "#070709" }}>
+      <div className="absolute inset-0" style={{ background: `radial-gradient(60% 55% at 50% 40%, ${alpha(color, 0.28)}, transparent 72%)` }} />
+      <div className="absolute inset-x-0 bottom-0 h-2/5" style={{ background: `radial-gradient(70% 100% at 50% 120%, ${alpha(color, 0.22)}, transparent)` }} />
     </div>
   );
 }

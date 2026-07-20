@@ -49,7 +49,7 @@ export default async function HomePage() {
           </span>
           <h1 className="font-display text-5xl font-bold leading-[1.02] tracking-tight text-balance sm:text-6xl lg:text-7xl">
             Create your perfect
-            <span className="bg-gradient-to-r from-indigo-300 via-white to-sky-300 bg-clip-text text-transparent"> Fortnite locker</span>
+            <span className="animate-gradient-x bg-gradient-to-r from-indigo-300 via-white to-sky-300 bg-[length:200%_auto] bg-clip-text text-transparent"> Fortnite locker</span>
           </h1>
           <p className="mt-5 max-w-md text-lg leading-relaxed text-white/55">
             Customize outfits, preview combos in a real-time 3D viewer, and track exactly what your collection is worth.

@@ -10,7 +10,7 @@ export function CosmeticCard({ cosmetic }: { cosmetic: Cosmetic }) {
   return (
     <Link
       href={`/cosmetic/${cosmetic.id}`}
-      className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/8 bg-white/[0.03] transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-white/[0.05]"
+      className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/8 bg-white/[0.03] transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.02] hover:border-white/20 hover:bg-white/[0.05]"
       style={{ boxShadow: `0 0 0 0 ${alpha(tone.color, 0)}` }}
     >
       <div className="relative aspect-square">

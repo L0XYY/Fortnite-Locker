@@ -59,12 +59,22 @@ const config: Config = {
         "spin-slow": {
           "100%": { transform: "rotate(360deg)" },
         },
+        "glow-pulse": {
+          "0%,100%": { opacity: "0.5" },
+          "50%": { opacity: "0.85" },
+        },
+        "gradient-x": {
+          "0%,100%": { "background-position": "0% 50%" },
+          "50%": { "background-position": "100% 50%" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.6s cubic-bezier(0.16,1,0.3,1) both",
         float: "float 6s ease-in-out infinite",
         shimmer: "shimmer 1.6s infinite",
         "spin-slow": "spin-slow 18s linear infinite",
+        "glow-pulse": "glow-pulse 5s ease-in-out infinite",
+        "gradient-x": "gradient-x 6s ease infinite",
       },
     },
   },
